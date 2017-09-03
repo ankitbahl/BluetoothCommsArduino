@@ -3,11 +3,13 @@
 
 SoftwareSerial Bluetooth(10, 11); // RX, TX
 int transistorPin=13; // led on D13 will show blink on / off
-int BluetoothData; // the data given from Computer
-String stillHere = "2";
-int pollDelay = 100
+int bluetoothData; // the data given from Computer
+char stillHere = '2';
+int pollDelay = 100;
 int aliveCounter = 0;
-int aliveCheckTime = 5; // time in s to check how often to check if controller is still communicating
+int aliveCheckTime = 5000; // time in ms to check how often to check if controller is still communicating
+int keepAliveCounter = 0;
+int timeOut = 5000;
 
 void setup() {
   // put your setup code here, to run once:
@@ -20,22 +22,44 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
    if (Bluetooth.available()){
-     BluetoothData = Bluetooth.read();
+     bluetoothData = Bluetooth.read();
      
-     if(BluetoothData == '1'){   // if number 1 pressed ....
-      Serial.print(BluetoothData);
+     if(bluetoothData == '1'){   // if number 1 pressed ....
+      Serial.print(bluetoothData);
       digitalWrite(transistorPin, HIGH);
      }
      
-    if (BluetoothData == '0'){// if number 0 pressed ....
-      Serial.print(BluetoothData);
+    if (bluetoothData == '0'){// if number 0 pressed ....
+      Serial.print(bluetoothData);
       digitalWrite(transistorPin, LOW);
     }
   }
   else {
-    if(keepAliveCounter == 
-    Bluetooth.write(stillHere);
-    keepAliveCounter++:
+    if(keepAliveCounter >= (aliveCheckTime/pollDelay)) {
+      bool isAlive = false;
+      Bluetooth.print(stillHere);
+      int timeOutCounter = 0;
+      while(timeOutCounter < (timeOut/pollDelay)) {
+        delay(pollDelay);
+        if(Bluetooth.available()) {
+          int data = Bluetooth.read();
+          if(data == stillHere) {
+            isAlive = true;
+          }
+        }
+        timeOutCounter++;
+      }
+      keepAliveCounter = 0;
+      if(!isAlive) {
+        restartBluetooth();
+      }
+    }
+    keepAliveCounter++;
   }
   delay(pollDelay);// prepare for next data ...
 }
+
+void restartBluetooth() {
+  Serial.print("restarting bluetooth");
+}
+
