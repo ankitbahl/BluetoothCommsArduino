@@ -1,0 +1,1 @@
+This repo is the client code that runs on top of an arduino with a HC-06 bluetooth module. It communicates with an Android controller running the following code: https://github.com/ankitbahl/BluetoothCommsAndroid
